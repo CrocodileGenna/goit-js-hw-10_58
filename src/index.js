@@ -3,6 +3,7 @@ import { countryFetch } from './countryFetch';
 import Notiflix from 'notiflix';
 
 const DEBOUNCE_DELAY = 300;
+// var debounce = require('lodash.debounce');
 
 const variables = {
   input: document.querySelector('#search-box'),
@@ -10,33 +11,43 @@ const variables = {
   сountryСard: document.querySelector('.country-info'),
 };
 
-variables.input.addEventListener('input', el => {
+console.log(variables.input);
+variables.input.addEventListener('input', countrySearch);
+
+function countrySearch(el) {
   const country = el.target.value;
+  console.log(country);
   if (country === '') {
     return;
   }
-  countryFetch(country)
-    .then(res => {
-      let object = res.length;
-      variables.ul.innerHTML = '';
+  variables.ul.innerHTML = '';
+  setTimeout(log => {
+    countryFetch(country)
+      .then(res => {
+        let object = res.length;
+        variables.ul.innerHTML = '';
 
-      if (object > 10) {
-        Notiflix.Notify.info(
-          'Too many matches found. Please enter a more specific name.'
+        if (object >= 2 && object <= 10) {
+          titleRender(res);
+        } else {
+          fullRender(res);
+        }
+
+        if (object >= 10) {
+          return Notiflix.Notify.info(
+            'Too many matches found. Please enter a more specific name.'
+          );
+        }
+      })
+      .catch(error => {
+        console.log(error);
+        variables.ul.innerHTML = '';
+        return Notiflix.Notify.failure(
+          `"Oops, there is no country with that name"`
         );
-        return;
-      }
-
-      if (object >= 2 && object <= 10) {
-        titleRender(res);
-      } else {
-        fullRender(res);
-      }
-    })
-    .catch(error => {
-      Notiflix.Notify.failure(`"Oops, there is no country with that name"`);
-    });
-});
+      });
+  }, DEBOUNCE_DELAY);
+}
 
 function fullRender(res) {
   res.map(({ name, capital, population, flags, languages }) => {
@@ -57,7 +68,6 @@ function fullRender(res) {
 }
 
 function titleRender(res) {
-  console.log(res);
   res.map(({ name, flags }) => {
     return (variables.ul.innerHTML += `<li class="country-list__li">
         <img src="${flags.png}" alt="${name}" width="60px" height="45px"/>
