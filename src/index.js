@@ -12,7 +12,7 @@ variables.input.addEventListener(
   'input',
   debounce(serchCounrty, DEBOUNCE_DELAY)
 );
-
+console.log('hi');
 function serchCounrty(country) {
   let nameCountry = country.target.value;
   fetchCountries(nameCountry)
@@ -28,7 +28,7 @@ function serchCounrty(country) {
         variables.ul.innerHTML = '';
         return;
       }
-      if (countrys.length > 3 && countrys.length < 10) {
+      if (countrys.length >= 3 && countrys.length < 10) {
         variables.ul.innerHTML = '';
         titleCountryCard(countrys);
       } else {
